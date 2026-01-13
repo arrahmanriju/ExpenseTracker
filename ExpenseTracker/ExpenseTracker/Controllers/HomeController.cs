@@ -1,32 +1,48 @@
-using System.Diagnostics;
+using ExpenseTracker.Data;
 using ExpenseTracker.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace ExpenseTracker.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly ILogger<HomeController> _logger;
+        private readonly ApplicationDbContext _context;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(ApplicationDbContext context)
         {
-            _logger = logger;
+            _context = context;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
+            // Get all transactions
+            var transactions = await _context.Transactions.ToListAsync();
+
+            // Calculate totals
+            var totalIncome = transactions
+                .Where(t => t.Type == "Income")
+                .Sum(t => t.Amount);
+
+            var totalExpense = transactions
+                .Where(t => t.Type == "Expense")
+                .Sum(t => t.Amount);
+
+            var balance = totalIncome - totalExpense;
+
+            // Get recent transactions (last 5)
+            var recentTransactions = transactions
+                .OrderByDescending(t => t.Date)
+                .Take(5)
+                .ToList();
+
+            // Pass data to view
+            ViewBag.TotalIncome = totalIncome;
+            ViewBag.TotalExpense = totalExpense;
+            ViewBag.Balance = balance;
+            ViewBag.RecentTransactions = recentTransactions;
+
             return View();
-        }
-
-        public IActionResult Privacy()
-        {
-            return View();
-        }
-
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
-        {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
     }
 }
