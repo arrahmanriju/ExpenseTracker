@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 
 namespace ExpenseTracker.Models
 {
@@ -20,6 +20,8 @@ namespace ExpenseTracker.Models
 
         [Required]
         public DateTime Date { get; set; }
+
+        public bool IsFixed { get; set; } = false; // For recurring/fixed expenses
 
         public DateTime CreatedAt { get; set; } = DateTime.Now;
     }
