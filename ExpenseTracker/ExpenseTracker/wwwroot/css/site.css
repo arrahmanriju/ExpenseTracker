@@ -28,7 +28,7 @@ body {
     min-height: 100vh;
     transition: all 0.3s;
     position: relative;
-    z-index: 999;
+    z-index: 1000;
 }
 
 .sidebar-header {
@@ -84,19 +84,25 @@ body {
     position: fixed;
     top: 15px;
     left: 15px;
-    z-index: 1001;
+    z-index: 1050;
     background: #2c3e50;
     color: white;
     border: none;
     padding: 10px 15px;
     border-radius: 5px;
     box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    transition: left 0.3s;
 }
 
     .btn-toggle:hover {
         background: #34495e;
         color: #3498db;
     }
+
+/* Move button when sidebar is open */
+.sidebar.active ~ #content .btn-toggle {
+    left: 265px;
+}
 
 /* Overlay for mobile */
 .overlay {
