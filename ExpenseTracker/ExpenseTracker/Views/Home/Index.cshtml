@@ -16,7 +16,7 @@
                     <i class="fas fa-arrow-up"></i>
                 </div>
                 <p class="card-title">Total Income</p>
-                <h2 class="card-value">৳ @ViewBag.TotalIncome.ToString("N2")</h2>
+                <h2 class="card-value">@ViewBag.CurrencySymbol @ViewBag.TotalIncome.ToString("N2")</h2>
             </div>
         </div>
 
@@ -27,7 +27,7 @@
                     <i class="fas fa-arrow-down"></i>
                 </div>
                 <p class="card-title">Total Expense</p>
-                <h2 class="card-value">৳ @ViewBag.TotalExpense.ToString("N2")</h2>
+                <h2 class="card-value">@ViewBag.CurrencySymbol @ViewBag.TotalExpense.ToString("N2")</h2>
             </div>
         </div>
 
@@ -38,7 +38,7 @@
                     <i class="fas fa-wallet"></i>
                 </div>
                 <p class="card-title">Balance</p>
-                <h2 class="card-value">৳ @ViewBag.Balance.ToString("N2")</h2>
+                <h2 class="card-value">@ViewBag.CurrencySymbol @ViewBag.Balance.ToString("N2")</h2>
             </div>
         </div>
     </div>
@@ -127,7 +127,7 @@
                                         <td>@(transaction.Description ?? "-")</td>
                                         <td class="text-end">
                                             <strong style="color: @(transaction.Type == "Income" ? "#27ae60" : "#e74c3c")">
-                                                ৳ @transaction.Amount.ToString("N2")
+                                                @ViewBag.CurrencySymbol @transaction.Amount.ToString("N2")
                                             </strong>
                                         </td>
                                     </tr>
@@ -157,7 +157,7 @@
             data: {
                 labels: ['Income', 'Expense'],
                 datasets: [{
-                    label: 'Amount (৳)',
+                    label: 'Amount (@ViewBag.CurrencySymbol)',
                     data: [@ViewBag.TotalIncome, @ViewBag.TotalExpense],
                     backgroundColor: [
                         'rgba(39, 174, 96, 0.8)',
@@ -183,7 +183,7 @@
                         beginAtZero: true,
                         ticks: {
                             callback: function(value) {
-                                return '৳ ' + value.toLocaleString();
+                                return '@ViewBag.CurrencySymbol ' + value.toLocaleString();
                             }
                         }
                     }
@@ -203,7 +203,7 @@
                 data: {
                     labels: categoryData.map(item => item.category),
                     datasets: [{
-                        label: 'Amount (৳)',
+                        label: 'Amount (@ViewBag.CurrencySymbol)',
                         data: categoryData.map(item => item.amount),
                         backgroundColor: [
                             'rgba(231, 76, 60, 0.8)',
@@ -233,7 +233,7 @@
                                     if (label) {
                                         label += ': ';
                                     }
-                                    label += '৳ ' + context.parsed.toLocaleString();
+                                    label += '@ViewBag.CurrencySymbol ' + context.parsed.toLocaleString();
                                     return label;
                                 }
                             }
@@ -285,7 +285,7 @@
                                 if (label) {
                                     label += ': ';
                                 }
-                                label += '৳ ' + context.parsed.y.toLocaleString();
+                                label += '@ViewBag.CurrencySymbol ' + context.parsed.y.toLocaleString();
                                 return label;
                             }
                         }
@@ -296,7 +296,7 @@
                         beginAtZero: true,
                         ticks: {
                             callback: function(value) {
-                                return '৳ ' + value.toLocaleString();
+                                return '@ViewBag.CurrencySymbol ' + value.toLocaleString();
                             }
                         }
                     }

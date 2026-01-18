@@ -14,7 +14,7 @@ namespace ExpenseTracker.Models
 
         public string? ProfilePicture { get; set; }
 
-        [Required]
+        
         public decimal MonthlyBudget { get; set; } = 0;
 
         [Required]

@@ -46,7 +46,7 @@
 
                         <div class="col-md-3">
                             <div class="mb-3">
-                                <label for="Amount" class="form-label">Amount (৳)</label>
+                                <label for="Amount" class="form-label">Amount (@ViewBag.CurrencySymbol)</label>
                                 <input name="Amount" class="form-control" type="number" step="0.01" min="0" placeholder="Enter amount" required />
                             </div>
                         </div>
@@ -92,7 +92,7 @@
                 @if (ViewBag.IncomeByCategory != null && ViewBag.IncomeByCategory.Count > 0)
                 {
                     <div class="alert alert-success mb-3">
-                        <strong>Total Income:</strong> ৳ @ViewBag.TotalIncome.ToString("N2")
+                        <strong>Total Income:</strong> @ViewBag.CurrencySymbol @ViewBag.TotalIncome.ToString("N2")
                     </div>
 
                     <div class="row">
@@ -104,7 +104,7 @@
                                     <div class="card-body">
                                         <h5 class="card-title">@item.Category</h5>
                                         <p class="card-text">
-                                            <strong style="color: #27ae60; font-size: 1.3rem;">৳ @item.Total.ToString("N2")</strong><br />
+                                            <strong style="color: #27ae60; font-size: 1.3rem;">@ViewBag.CurrencySymbol @item.Total.ToString("N2")</strong><br />
                                             <small class="text-muted">@item.Count transaction(s) · @percentage.ToString("F1")%</small>
                                         </p>
                                         <div class="progress" style="height: 8px;">
@@ -157,7 +157,7 @@
                                         </td>
                                         <td>@(income.Description ?? "-")</td>
                                         <td class="text-end">
-                                            <strong style="color: #27ae60;">৳ @income.Amount.ToString("N2")</strong>
+                                            <strong style="color: #27ae60;">@ViewBag.CurrencySymbol @income.Amount.ToString("N2")</strong>
                                         </td>
                                         <td class="text-center">
                                             <a asp-action="DeleteIncome" asp-route-id="@income.TransactionId" 

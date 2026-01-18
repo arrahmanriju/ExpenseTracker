@@ -5,11 +5,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ExpenseTracker.Controllers
 {
-    public class SettingsController : Controller
+    public class SettingsController : BaseController
     {
         private readonly ApplicationDbContext _context;
 
-        public SettingsController(ApplicationDbContext context)
+        public SettingsController(ApplicationDbContext context) : base(context)
         {
             _context = context;
         }

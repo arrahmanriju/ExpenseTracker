@@ -37,7 +37,7 @@
                     var totalFixed = Model.Sum(t => t.Amount);
                     
                     <div class="alert alert-info mb-4">
-                        <strong>Total Monthly Fixed Expenses:</strong> ৳ @totalFixed.ToString("N2")
+                        <strong>Total Monthly Fixed Expenses:</strong> @ViewBag.CurrencySymbol @totalFixed.ToString("N2")
                     </div>
 
                     <div class="table-responsive">
@@ -61,7 +61,7 @@
                                         <td>@(expense.Description ?? "-")</td>
                                         <td>@expense.Date.ToString("MMM dd, yyyy")</td>
                                         <td class="text-end">
-                                            <strong style="color: #e74c3c;">৳ @expense.Amount.ToString("N2")</strong>
+                                            <strong style="color: #e74c3c;">@ViewBag.CurrencySymbol @expense.Amount.ToString("N2")</strong>
                                         </td>
                                         <td class="text-center">
                                             <a asp-action="DeleteFixedExpense" asp-route-id="@expense.TransactionId" 
