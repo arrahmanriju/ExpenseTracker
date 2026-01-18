@@ -16,55 +16,19 @@ namespace ExpenseTracker.Controllers
 
         public async Task<IActionResult> Index()
         {
+            // Get all transactions
             var transactions = await _context.Transactions.ToListAsync();
 
-            var now = DateTime.Now;
-            var currentMonth = now.Month;
-            var currentYear = now.Year;
-            var lastMonth = now.AddMonths(-1).Month;
-            var lastMonthYear = now.AddMonths(-1).Year;
-
-            // Current Month Calculations
-            var currentMonthTransactions = transactions
-                .Where(t => t.Date.Month == currentMonth && t.Date.Year == currentYear)
-                .ToList();
-
-            var totalIncome = currentMonthTransactions
+            // Calculate totals
+            var totalIncome = transactions
                 .Where(t => t.Type == "Income")
                 .Sum(t => t.Amount);
 
-            var totalExpense = currentMonthTransactions
+            var totalExpense = transactions
                 .Where(t => t.Type == "Expense")
                 .Sum(t => t.Amount);
 
             var balance = totalIncome - totalExpense;
-
-            // Last Month Calculations
-            var lastMonthTransactions = transactions
-                .Where(t => t.Date.Month == lastMonth && t.Date.Year == lastMonthYear)
-                .ToList();
-
-            var lastMonthIncome = lastMonthTransactions
-                .Where(t => t.Type == "Income")
-                .Sum(t => t.Amount);
-
-            var lastMonthExpense = lastMonthTransactions
-                .Where(t => t.Type == "Expense")
-                .Sum(t => t.Amount);
-
-            // Percentage Changes
-            var incomeChange = lastMonthIncome > 0
-                ? ((totalIncome - lastMonthIncome) / lastMonthIncome * 100)
-                : 0;
-
-            var expenseChange = lastMonthExpense > 0
-                ? ((totalExpense - lastMonthExpense) / lastMonthExpense * 100)
-                : 0;
-
-            // Savings Rate
-            var savingsRate = totalIncome > 0
-                ? ((totalIncome - totalExpense) / totalIncome * 100)
-                : 0;
 
             // Get recent transactions (last 5)
             var recentTransactions = transactions
@@ -73,7 +37,7 @@ namespace ExpenseTracker.Controllers
                 .ToList();
 
             // Expense by Category for Pie Chart
-            var expenseByCategory = currentMonthTransactions
+            var expenseByCategory = transactions
                 .Where(t => t.Type == "Expense")
                 .GroupBy(t => t.Category)
                 .Select(g => new
@@ -83,24 +47,6 @@ namespace ExpenseTracker.Controllers
                 })
                 .OrderByDescending(x => x.Amount)
                 .ToList();
-
-            // Find highest spending category
-            var highestCategory = expenseByCategory.FirstOrDefault();
-
-            // Spending Alert (if spending more than last month)
-            string spendingAlert = null;
-            if (expenseChange > 20)
-            {
-                spendingAlert = $" Warning: Your expenses are {expenseChange:F1}% higher than last month!";
-            }
-            else if (expenseChange > 0)
-            {
-                spendingAlert = $" Your expenses increased by {expenseChange:F1}% compared to last month.";
-            }
-            else if (expenseChange < 0)
-            {
-                spendingAlert = $" Great! You reduced expenses by {Math.Abs(expenseChange):F1}% compared to last month.";
-            }
 
             // Monthly trend data (last 6 months)
             var monthlyData = new List<object>();
@@ -126,13 +72,6 @@ namespace ExpenseTracker.Controllers
             ViewBag.TotalIncome = totalIncome;
             ViewBag.TotalExpense = totalExpense;
             ViewBag.Balance = balance;
-            ViewBag.IncomeChange = incomeChange;
-            ViewBag.ExpenseChange = expenseChange;
-            ViewBag.LastMonthIncome = lastMonthIncome;
-            ViewBag.LastMonthExpense = lastMonthExpense;
-            ViewBag.SavingsRate = savingsRate;
-            ViewBag.HighestCategory = highestCategory;
-            ViewBag.SpendingAlert = spendingAlert;
             ViewBag.RecentTransactions = recentTransactions;
             ViewBag.ExpenseByCategory = expenseByCategory;
             ViewBag.MonthlyData = monthlyData;
@@ -141,3 +80,4 @@ namespace ExpenseTracker.Controllers
         }
     }
 }
+
