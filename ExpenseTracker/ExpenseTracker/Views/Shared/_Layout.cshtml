@@ -11,51 +11,84 @@
 <body>
     <div class="wrapper">
         <!-- Sidebar -->
-<nav id="sidebar" class="sidebar">
-    <div class="sidebar-header">
-        <h3><i class="fas fa-wallet"></i> হিসাবের খাতা</h3>
-        <p style="font-size: 0.8rem; margin: 0; opacity: 0.8;">Hisaber Khata</p>
-    </div>
-    <ul class="list-unstyled components">
-        <li>
-            <a asp-controller="Home" asp-action="Index">
-                <i class="fas fa-chart-line"></i> Overview
-            </a>
-        </li>
-        <li>
-            <a asp-controller="Expense" asp-action="AddExpense">
-                <i class="fas fa-plus-circle"></i> Add Expense
-            </a>
-        </li>
-        <li>
-            <a asp-controller="Expense" asp-action="FixedExpense">
-                <i class="fas fa-sync-alt"></i> Fixed Expense
-            </a>
-        </li>
-        <li>
-            <a asp-controller="Income" asp-action="Index">
-                <i class="fas fa-dollar-sign"></i> Income
-            </a>
-        </li>
-        <li>
-            <a asp-controller="Settings" asp-action="Index">
-                <i class="fas fa-cog"></i> Settings
-            </a>
-        </li>
-    </ul>
-</nav>
+        <nav id="sidebar" class="sidebar">
+            <div class="sidebar-header">
+                <h3><i class="fas fa-wallet"></i> হিসাবের খাতা</h3>
+                <p style="font-size: 0.8rem; margin: 0; opacity: 0.8;">Hisaber Khata</p>
+            </div>
+            <ul class="list-unstyled components">
+                <li>
+                    <a asp-controller="Home" asp-action="Index">
+                        <i class="fas fa-chart-line"></i> <span class="menu-text">Overview</span>
+                    </a>
+                </li>
+                <li>
+                    <a asp-controller="Expense" asp-action="AddExpense">
+                        <i class="fas fa-plus-circle"></i> <span class="menu-text">Add Expense</span>
+                    </a>
+                </li>
+                <li>
+                    <a asp-controller="Expense" asp-action="FixedExpense">
+                        <i class="fas fa-sync-alt"></i> <span class="menu-text">Fixed Expense</span>
+                    </a>
+                </li>
+                <li>
+                    <a asp-controller="Income" asp-action="Index">
+                        <i class="fas fa-dollar-sign"></i> <span class="menu-text">Income</span>
+                    </a>
+                </li>
+                <li>
+                    <a asp-controller="Settings" asp-action="Index">
+                        <i class="fas fa-cog"></i> <span class="menu-text">Settings</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
 
         <!-- Page Content -->
         <div id="content">
+            <!-- Mobile Menu Toggle Button -->
+            <button type="button" id="sidebarCollapse" class="btn btn-toggle">
+                <i class="fas fa-bars"></i>
+            </button>
+            
             <main role="main" class="pb-3">
                 @RenderBody()
             </main>
         </div>
     </div>
 
+    <!-- Overlay for mobile -->
+    <div class="overlay" id="overlay"></div>
+
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+    
+    <script>
+        $(document).ready(function () {
+            // Toggle sidebar on button click
+            $('#sidebarCollapse').on('click', function () {
+                $('#sidebar').toggleClass('active');
+                $('#overlay').toggleClass('active');
+            });
+
+            // Close sidebar when clicking on overlay
+            $('#overlay').on('click', function () {
+                $('#sidebar').removeClass('active');
+                $('#overlay').removeClass('active');
+            });
+
+            // Close sidebar when clicking a menu item on mobile
+            if ($(window).width() <= 768) {
+                $('#sidebar ul li a').on('click', function () {
+                    $('#sidebar').removeClass('active');
+                    $('#overlay').removeClass('active');
+                });
+            }
+        });
+    </script>
+    
     @await RenderSectionAsync("Scripts", required: false)
 </body>
-</html>                                                                                        
+</html>
