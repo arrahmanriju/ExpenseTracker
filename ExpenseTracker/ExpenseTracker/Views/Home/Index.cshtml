@@ -51,7 +51,7 @@
                 <h3 style="margin-bottom: 20px;">
                     <i class="fas fa-chart-bar"></i> Income vs Expense
                 </h3>
-                <canvas id="incomeExpenseChart" height="300"></canvas>
+                <canvas id="incomeExpenseChart" style="max-height: 250px;"></canvas>
             </div>
         </div>
 
@@ -63,7 +63,7 @@
                 </h3>
                 @if (ViewBag.ExpenseByCategory != null && ViewBag.ExpenseByCategory.Count > 0)
                 {
-                    <canvas id="expenseCategoryChart" height="300"></canvas>
+                    <canvas id="expenseCategoryChart" style="max-height: 250px;"></canvas>
                 }
                 else
                 {
@@ -82,7 +82,7 @@
                 <h3 style="margin-bottom: 20px;">
                     <i class="fas fa-chart-line"></i> 6-Month Trend
                 </h3>
-                <canvas id="monthlyTrendChart" height="100"></canvas>
+                <canvas id="monthlyTrendChart" style="max-height: 200px;"></canvas>
             </div>
         </div>
     </div>
