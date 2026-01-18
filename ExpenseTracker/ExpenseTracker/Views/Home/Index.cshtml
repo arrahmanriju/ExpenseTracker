@@ -43,6 +43,50 @@
         </div>
     </div>
 
+    <!-- Charts Row -->
+    <div class="row mt-4">
+        <!-- Income vs Expense Bar Chart -->
+        <div class="col-md-6">
+            <div class="overview-card">
+                <h3 style="margin-bottom: 20px;">
+                    <i class="fas fa-chart-bar"></i> Income vs Expense
+                </h3>
+                <canvas id="incomeExpenseChart" height="300"></canvas>
+            </div>
+        </div>
+
+        <!-- Expense by Category Doughnut Chart -->
+        <div class="col-md-6">
+            <div class="overview-card">
+                <h3 style="margin-bottom: 20px;">
+                    <i class="fas fa-chart-pie"></i> Expense by Category
+                </h3>
+                @if (ViewBag.ExpenseByCategory != null && ViewBag.ExpenseByCategory.Count > 0)
+                {
+                    <canvas id="expenseCategoryChart" height="300"></canvas>
+                }
+                else
+                {
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i> No expense data yet. Start adding expenses to see the breakdown!
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- Monthly Trend Line Chart -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="overview-card">
+                <h3 style="margin-bottom: 20px;">
+                    <i class="fas fa-chart-line"></i> 6-Month Trend
+                </h3>
+                <canvas id="monthlyTrendChart" height="100"></canvas>
+            </div>
+        </div>
+    </div>
+
     <!-- Recent Transactions Section -->
     <div class="row mt-4">
         <div class="col-12">
@@ -102,3 +146,162 @@
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script>
+        // Income vs Expense Bar Chart
+        const incomeExpenseCtx = document.getElementById('incomeExpenseChart').getContext('2d');
+        new Chart(incomeExpenseCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Income', 'Expense'],
+                datasets: [{
+                    label: 'Amount (৳)',
+                    data: [@ViewBag.TotalIncome, @ViewBag.TotalExpense],
+                    backgroundColor: [
+                        'rgba(39, 174, 96, 0.8)',
+                        'rgba(231, 76, 60, 0.8)'
+                    ],
+                    borderColor: [
+                        'rgba(39, 174, 96, 1)',
+                        'rgba(231, 76, 60, 1)'
+                    ],
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return '৳ ' + value.toLocaleString();
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        @if (ViewBag.ExpenseByCategory != null && ViewBag.ExpenseByCategory.Count > 0)
+        {
+            <text>
+            // Expense by Category Doughnut Chart
+            const expenseCategoryCtx = document.getElementById('expenseCategoryChart').getContext('2d');
+            const categoryData = @Html.Raw(Json.Serialize(ViewBag.ExpenseByCategory));
+            
+            new Chart(expenseCategoryCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: categoryData.map(item => item.category),
+                    datasets: [{
+                        label: 'Amount (৳)',
+                        data: categoryData.map(item => item.amount),
+                        backgroundColor: [
+                            'rgba(231, 76, 60, 0.8)',
+                            'rgba(52, 152, 219, 0.8)',
+                            'rgba(241, 196, 15, 0.8)',
+                            'rgba(155, 89, 182, 0.8)',
+                            'rgba(26, 188, 156, 0.8)',
+                            'rgba(230, 126, 34, 0.8)',
+                            'rgba(149, 165, 166, 0.8)',
+                            'rgba(192, 57, 43, 0.8)',
+                            'rgba(142, 68, 173, 0.8)'
+                        ],
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    label += '৳ ' + context.parsed.toLocaleString();
+                                    return label;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+            </text>
+        }
+
+        // Monthly Trend Line Chart
+        const monthlyTrendCtx = document.getElementById('monthlyTrendChart').getContext('2d');
+        const monthlyData = @Html.Raw(Json.Serialize(ViewBag.MonthlyData));
+        
+        new Chart(monthlyTrendCtx, {
+            type: 'line',
+            data: {
+                labels: monthlyData.map(item => item.month),
+                datasets: [
+                    {
+                        label: 'Income',
+                        data: monthlyData.map(item => item.income),
+                        borderColor: 'rgba(39, 174, 96, 1)',
+                        backgroundColor: 'rgba(39, 174, 96, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    },
+                    {
+                        label: 'Expense',
+                        data: monthlyData.map(item => item.expense),
+                        borderColor: 'rgba(231, 76, 60, 1)',
+                        backgroundColor: 'rgba(231, 76, 60, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.dataset.label || '';
+                                if (label) {
+                                    label += ': ';
+                                }
+                                label += '৳ ' + context.parsed.y.toLocaleString();
+                                return label;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return '৳ ' + value.toLocaleString();
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+}
