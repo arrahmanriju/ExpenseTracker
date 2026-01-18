@@ -15,26 +15,8 @@
                 <div class="card-icon">
                     <i class="fas fa-arrow-up"></i>
                 </div>
-                <p class="card-title">Total Income (This Month)</p>
+                <p class="card-title">Total Income</p>
                 <h2 class="card-value">@ViewBag.CurrencySymbol @ViewBag.TotalIncome.ToString("N2")</h2>
-                @if (ViewBag.LastMonthIncome > 0)
-                {
-                    <small style="color: #7f8c8d;">
-                        Last month: @ViewBag.CurrencySymbol @ViewBag.LastMonthIncome.ToString("N2")
-                        @if (ViewBag.IncomeChange > 0)
-                        {
-                            <span style="color: #27ae60;">
-                                <i class="fas fa-arrow-up"></i> +@ViewBag.IncomeChange.ToString("F1")%
-                            </span>
-                        }
-                        else if (ViewBag.IncomeChange < 0)
-                        {
-                            <span style="color: #e74c3c;">
-                                <i class="fas fa-arrow-down"></i> @ViewBag.IncomeChange.ToString("F1")%
-                            </span>
-                        }
-                    </small>
-                }
             </div>
         </div>
 
@@ -44,26 +26,8 @@
                 <div class="card-icon">
                     <i class="fas fa-arrow-down"></i>
                 </div>
-                <p class="card-title">Total Expense (This Month)</p>
+                <p class="card-title">Total Expense</p>
                 <h2 class="card-value">@ViewBag.CurrencySymbol @ViewBag.TotalExpense.ToString("N2")</h2>
-                @if (ViewBag.LastMonthExpense > 0)
-                {
-                    <small style="color: #7f8c8d;">
-                        Last month: @ViewBag.CurrencySymbol @ViewBag.LastMonthExpense.ToString("N2")
-                        @if (ViewBag.ExpenseChange > 0)
-                        {
-                            <span style="color: #e74c3c;">
-                                <i class="fas fa-arrow-up"></i> +@ViewBag.ExpenseChange.ToString("F1")%
-                            </span>
-                        }
-                        else if (ViewBag.ExpenseChange < 0)
-                        {
-                            <span style="color: #27ae60;">
-                                <i class="fas fa-arrow-down"></i> @ViewBag.ExpenseChange.ToString("F1")%
-                            </span>
-                        }
-                    </small>
-                }
             </div>
         </div>
 
@@ -75,60 +39,6 @@
                 </div>
                 <p class="card-title">Balance</p>
                 <h2 class="card-value">@ViewBag.CurrencySymbol @ViewBag.Balance.ToString("N2")</h2>
-                <small style="color: #7f8c8d;">
-                    Savings Rate: 
-                    <strong style="color: @(ViewBag.SavingsRate > 20 ? "#27ae60" : ViewBag.SavingsRate > 0 ? "#f39c12" : "#e74c3c")">
-                        @ViewBag.SavingsRate.ToString("F1")%
-                    </strong>
-                </small>
-            </div>
-        </div>
-    </div>
-
-    <!-- Spending Alert -->
-    @if (!string.IsNullOrEmpty(ViewBag.SpendingAlert))
-    {
-        <div class="row mt-3">
-            <div class="col-12">
-                <div class="alert @(ViewBag.ExpenseChange > 20 ? "alert-warning" : ViewBag.ExpenseChange > 0 ? "alert-info" : "alert-success") alert-dismissible fade show" role="alert">
-                    @ViewBag.SpendingAlert
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                </div>
-            </div>
-        </div>
-    }
-
-    <!-- Quick Stats Row -->
-    <div class="row mt-3">
-        <div class="col-md-6">
-            <div class="overview-card" style="padding: 15px;">
-                <h6><i class="fas fa-chart-bar"></i> Quick Stats</h6>
-                <ul style="margin: 10px 0; padding-left: 20px; font-size: 0.9rem;">
-                    @if (ViewBag.HighestCategory != null)
-                    {
-                        <li>Highest Expense: <strong>@ViewBag.HighestCategory.Category</strong> (@ViewBag.CurrencySymbol @ViewBag.HighestCategory.Amount.ToString("N2"))</li>
-                    }
-                    else
-                    {
-                        <li>No expenses this month</li>
-                    }
-                    <li>Average Daily Spending: <strong>@ViewBag.CurrencySymbol @((ViewBag.TotalExpense / DateTime.Now.Day).ToString("N2"))</strong></li>
-                    <li>Total Transactions: <strong>@ViewBag.RecentTransactions.Count</strong> recent</li>
-                </ul>
-            </div>
-        </div>
-        
-        <div class="col-md-6">
-            <div class="overview-card" style="padding: 15px;">
-                <h6><i class="fas fa-bolt"></i> Quick Actions</h6>
-                <div class="d-flex gap-2 mt-2">
-                    <a asp-controller="Expense" asp-action="AddExpense" class="btn btn-sm btn-danger flex-fill">
-                        <i class="fas fa-minus-circle"></i> Add Expense
-                    </a>
-                    <a asp-controller="Income" asp-action="Index" class="btn btn-sm btn-success flex-fill">
-                        <i class="fas fa-plus-circle"></i> Add Income
-                    </a>
-                </div>
             </div>
         </div>
     </div>
@@ -237,11 +147,14 @@
     </div>
 </div>
 
+
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script>
+        // Store currency symbol
         var currencySymbol = '@Html.Raw(ViewBag.CurrencySymbol)';
 
+        // Helper function to format currency
         function formatCurrency(value) {
             if (value >= 1000000) {
                 return currencySymbol + (value / 1000000).toFixed(1) + 'M';
@@ -304,59 +217,60 @@
             });
         }
 
+        // Expense by Category Doughnut Chart
         @if (ViewBag.ExpenseByCategory != null && ViewBag.ExpenseByCategory.Count > 0)
         {
-            <text>
-        const expenseCategoryCtx = document.getElementById('expenseCategoryChart');
-        if (expenseCategoryCtx) {
-            const categoryData = @Html.Raw(Json.Serialize(ViewBag.ExpenseByCategory));
-            
-            new Chart(expenseCategoryCtx, {
-                type: 'doughnut',
-                data: {
-                    labels: categoryData.map(item => item.category),
-                    datasets: [{
-                        data: categoryData.map(item => item.amount),
-                        backgroundColor: [
-                            'rgba(231, 76, 60, 0.8)',
-                            'rgba(52, 152, 219, 0.8)',
-                            'rgba(241, 196, 15, 0.8)',
-                            'rgba(155, 89, 182, 0.8)',
-                            'rgba(26, 188, 156, 0.8)',
-                            'rgba(230, 126, 34, 0.8)',
-                            'rgba(149, 165, 166, 0.8)',
-                            'rgba(192, 57, 43, 0.8)'
-                        ],
-                        borderWidth: 2
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'right',
-                            labels: { font: { size: 11 } }
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    return context.label + ': ' + currencySymbol + context.parsed.toLocaleString();
+                <text>
+            const expenseCategoryCtx = document.getElementById('expenseCategoryChart');
+            if (expenseCategoryCtx) {
+                const categoryData = @Html.Raw(Json.Serialize(ViewBag.ExpenseByCategory));
+
+                new Chart(expenseCategoryCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: categoryData.map(item => item.category),
+                        datasets: [{
+                            data: categoryData.map(item => item.amount),
+                            backgroundColor: [
+                                'rgba(231, 76, 60, 0.8)',
+                                'rgba(52, 152, 219, 0.8)',
+                                'rgba(241, 196, 15, 0.8)',
+                                'rgba(155, 89, 182, 0.8)',
+                                'rgba(26, 188, 156, 0.8)',
+                                'rgba(230, 126, 34, 0.8)',
+                                'rgba(149, 165, 166, 0.8)',
+                                'rgba(192, 57, 43, 0.8)'
+                            ],
+                            borderWidth: 2
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'right',
+                                labels: { font: { size: 11 } }
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        return context.label + ': ' + currencySymbol + context.parsed.toLocaleString();
+                                    }
                                 }
                             }
                         }
                     }
-                }
-            });
-        }
-            </text>
+                });
+            }
+                </text>
         }
 
         // Monthly Trend Line Chart
         const monthlyTrendCtx = document.getElementById('monthlyTrendChart');
         if (monthlyTrendCtx) {
             const monthlyData = @Html.Raw(Json.Serialize(ViewBag.MonthlyData));
-            
+
             new Chart(monthlyTrendCtx, {
                 type: 'line',
                 data: {
