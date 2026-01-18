@@ -1,5 +1,21 @@
 @model ExpenseTracker.Models.Transaction
 
+@if (!ViewData.ModelState.IsValid)
+{
+    <div class="alert alert-danger">
+        <h4>Validation Errors:</h4>
+        <ul>
+            @foreach (var modelState in ViewData.ModelState)
+            {
+                foreach (var error in modelState.Value.Errors)
+                {
+                    <li><strong>@modelState.Key:</strong> @error.ErrorMessage @error.Exception?.Message</li>
+                }
+            }
+        </ul>
+    </div>
+}
+
 @{
     ViewData["Title"] = "Add Expense";
 }
@@ -21,6 +37,7 @@
         <div class="col-md-8 mx-auto">
             <div class="overview-card">
                 <form asp-action="AddExpense" method="post">
+                    <input type="hidden" asp-for="Type" value="Expense" />
                     <div class="mb-3">
                         <label asp-for="Category" class="form-label">Category</label>
                         <select asp-for="Category" class="form-select" required>
@@ -46,7 +63,7 @@
 
                     <div class="mb-3">
                         <label asp-for="Date" class="form-label">Date</label>
-                        <input asp-for="Date" class="form-control" type="date" required />
+                        <input asp-for="Date" class="form-control" type="date" value="@DateTime.Now.ToString("yyyy-MM-dd")" required />
                         <span asp-validation-for="Date" class="text-danger"></span>
                     </div>
 
