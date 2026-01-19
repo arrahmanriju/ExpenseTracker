@@ -52,9 +52,9 @@ namespace ExpenseTracker.Controllers
                 
                 _context.Add(transaction);
                 await _context.SaveChangesAsync();
-                
+
                 TempData["SuccessMessage"] = "Income added successfully!";
-                return RedirectToAction("Index");
+                return RedirectToAction("Index", "Home"); // Redirect to Overview
             }
             
             // If validation fails, return to the same page

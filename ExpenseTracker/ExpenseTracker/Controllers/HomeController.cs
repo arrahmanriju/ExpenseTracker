@@ -33,7 +33,6 @@ namespace ExpenseTracker.Controllers
             // Get recent transactions (last 5)
             var recentTransactions = transactions
                 .OrderByDescending(t => t.Date)
-                .Take(5)
                 .ToList();
 
             // Expense by Category for Pie Chart

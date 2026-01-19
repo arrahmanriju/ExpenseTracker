@@ -32,9 +32,9 @@ namespace ExpenseTracker.Controllers
                 
                 _context.Add(transaction);
                 await _context.SaveChangesAsync();
-                
+
                 TempData["SuccessMessage"] = "Expense added successfully!";
-                return RedirectToAction("AddExpense");
+                return RedirectToAction("Index", "Home"); // Redirect to Overview
             }
             return View(transaction);
         }

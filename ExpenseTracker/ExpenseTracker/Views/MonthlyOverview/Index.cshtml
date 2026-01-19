@@ -1,0 +1,225 @@
+﻿@{
+    ViewData["Title"] = "Monthly Overview";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="page-title">
+            <i class="fas fa-calendar-alt"></i> Monthly Overview
+        </h1>
+
+        <!-- Month/Year Selector -->
+        <form method="get" class="d-flex gap-2">
+            <select name="month" class="form-select" style="width: auto;" onchange="this.form.submit()">
+                @if (ViewBag.MonthYearOptions != null)
+                {
+                    @foreach (dynamic item in ViewBag.MonthYearOptions)
+                    {
+                        var isSelected = item.Month == ViewBag.SelectedMonth && item.Year == ViewBag.SelectedYear;
+                        <option value="@item.Month"
+                                data-year="@item.Year"
+                                selected="@isSelected">
+                            @item.Display
+                        </option>
+                    }
+                }
+            </select>
+            <input type="hidden" name="year" id="yearInput" value="@ViewBag.SelectedYear" />
+        </form>
+    </div>
+
+    <h3 class="text-center mb-4" style="color: #2c3e50;">
+        @ViewBag.MonthName
+    </h3>
+
+    <!-- Summary Cards Row -->
+    <div class="row">
+        <!-- Total Income Card -->
+        <div class="col-md-4">
+            <div class="overview-card income-card">
+                <div class="card-icon">
+                    <i class="fas fa-arrow-up"></i>
+                </div>
+                <p class="card-title">Total Income</p>
+                <h2 class="card-value">@ViewBag.CurrencySymbol @ViewBag.TotalIncome.ToString("N2")</h2>
+            </div>
+        </div>
+
+        <!-- Total Expense Card -->
+        <div class="col-md-4">
+            <div class="overview-card expense-card">
+                <div class="card-icon">
+                    <i class="fas fa-arrow-down"></i>
+                </div>
+                <p class="card-title">Total Expense</p>
+                <h2 class="card-value">@ViewBag.CurrencySymbol @ViewBag.TotalExpense.ToString("N2")</h2>
+            </div>
+        </div>
+
+        <!-- Balance Card -->
+        <div class="col-md-4">
+            <div class="overview-card balance-card">
+                <div class="card-icon">
+                    <i class="fas fa-wallet"></i>
+                </div>
+                <p class="card-title">Balance</p>
+                <h2 class="card-value">@ViewBag.CurrencySymbol @ViewBag.Balance.ToString("N2")</h2>
+            </div>
+        </div>
+    </div>
+
+    <!-- Income & Expense by Category -->
+    <div class="row mt-4">
+        <!-- Income by Category -->
+        <div class="col-md-6">
+            <div class="overview-card">
+                <h3 style="margin-bottom: 20px;">
+                    <i class="fas fa-coins"></i> Income Breakdown
+                </h3>
+                @if (ViewBag.IncomeByCategory != null && ViewBag.IncomeByCategory.Count > 0)
+                {
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Category</th>
+                                    <th class="text-center">Transactions</th>
+                                    <th class="text-end">Amount</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in ViewBag.IncomeByCategory)
+                                {
+                                    <tr>
+                                        <td><span class="badge bg-success">@item.Category</span></td>
+                                        <td class="text-center">@item.Count</td>
+                                        <td class="text-end">
+                                            <strong style="color: #27ae60;">@ViewBag.CurrencySymbol @item.Amount.ToString("N2")</strong>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i> No income this month
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- Expense by Category -->
+        <div class="col-md-6">
+            <div class="overview-card">
+                <h3 style="margin-bottom: 20px;">
+                    <i class="fas fa-shopping-cart"></i> Expense Breakdown
+                </h3>
+                @if (ViewBag.ExpenseByCategory != null && ViewBag.ExpenseByCategory.Count > 0)
+                {
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Category</th>
+                                    <th class="text-center">Transactions</th>
+                                    <th class="text-end">Amount</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in ViewBag.ExpenseByCategory)
+                                {
+                                    <tr>
+                                        <td><span class="badge bg-danger">@item.Category</span></td>
+                                        <td class="text-center">@item.Count</td>
+                                        <td class="text-end">
+                                            <strong style="color: #e74c3c;">@ViewBag.CurrencySymbol @item.Amount.ToString("N2")</strong>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i> No expenses this month
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- All Transactions -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="overview-card">
+                <h3 style="margin-bottom: 20px;">
+                    <i class="fas fa-list"></i> All Transactions (@ViewBag.Transactions.Count total)
+                </h3>
+
+                @if (ViewBag.Transactions != null && ViewBag.Transactions.Count > 0)
+                {
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Type</th>
+                                    <th>Category</th>
+                                    <th>Description</th>
+                                    <th class="text-end">Amount</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var transaction in ViewBag.Transactions)
+                                {
+                                    <tr>
+                                        <td>@transaction.Date.ToString("MMM dd, yyyy")</td>
+                                        <td>
+                                            @if (transaction.Type == "Income")
+                                            {
+                                                <span class="badge bg-success">Income</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-danger">Expense</span>
+                                            }
+                                        </td>
+                                        <td>@transaction.Category</td>
+                                        <td>@(transaction.Description ?? "-")</td>
+                                        <td class="text-end">
+                                            <strong style="color: @(transaction.Type == "Income" ? "#27ae60" : "#e74c3c")">
+                                                @ViewBag.CurrencySymbol @transaction.Amount.ToString("N2")
+                                            </strong>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i> No transactions for this month
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Update hidden year input when month changes
+        document.querySelector('select[name="month"]').addEventListener('change', function() {
+            var selectedOption = this.options[this.selectedIndex];
+            var year = selectedOption.getAttribute('data-year');
+            document.getElementById('yearInput').value = year;
+        });
+    </script>
+}
