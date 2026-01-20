@@ -17,6 +17,35 @@
         </div>
     }
 
+    <!-- Month Selector -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="overview-card">
+                <div class="d-flex justify-content-between align-items-center">
+                    @{
+                        int prevMonth = ViewBag.SelectedMonth == 1 ? 12 : ViewBag.SelectedMonth - 1;
+                        int prevYear = ViewBag.SelectedMonth == 1 ? ViewBag.SelectedYear - 1 : ViewBag.SelectedYear;
+                        int nextMonth = ViewBag.SelectedMonth == 12 ? 1 : ViewBag.SelectedMonth + 1;
+                        int nextYear = ViewBag.SelectedMonth == 12 ? ViewBag.SelectedYear + 1 : ViewBag.SelectedYear;
+                        var currentMonthName = new DateTime(ViewBag.SelectedYear, ViewBag.SelectedMonth, 1).ToString("MMMM yyyy");
+                    }
+
+                    <a href="?month=@prevMonth&year=@prevYear" class="btn btn-outline-primary">
+                        <i class="fas fa-chevron-left"></i> Previous
+                    </a>
+
+                    <h4 class="mb-0">
+                        <i class="fas fa-calendar-alt"></i> @currentMonthName
+                    </h4>
+
+                    <a href="?month=@nextMonth&year=@nextYear" class="btn btn-outline-primary">
+                        Next <i class="fas fa-chevron-right"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Add Income Form -->
     <div class="row mb-4">
         <div class="col-12">
@@ -26,7 +55,7 @@
                 </h3>
                 <form asp-action="AddIncome" method="post">
                     <input type="hidden" name="Type" value="Income" />
-                    
+
                     <div class="row">
                         <div class="col-md-3">
                             <div class="mb-3">
@@ -86,13 +115,13 @@
         <div class="col-12">
             <div class="overview-card">
                 <h3 style="margin-bottom: 20px;">
-                    <i class="fas fa-chart-pie"></i> Income by Category
+                    <i class="fas fa-chart-pie"></i> Income by Category - @currentMonthName
                 </h3>
-                
+
                 @if (ViewBag.IncomeByCategory != null && ViewBag.IncomeByCategory.Count > 0)
                 {
                     <div class="alert alert-success mb-3">
-                        <strong>Total Income:</strong> @ViewBag.CurrencySymbol @ViewBag.TotalIncome.ToString("N2")
+                        <strong>Total Income for @currentMonthName:</strong> @ViewBag.CurrencySymbol @ViewBag.TotalIncome.ToString("N2")
                     </div>
 
                     <div class="row">
@@ -119,7 +148,7 @@
                 else
                 {
                     <div class="alert alert-info">
-                        <i class="fas fa-info-circle"></i> No income categories yet. Add your first income above!
+                        <i class="fas fa-info-circle"></i> No income for @currentMonthName. Add your first income above or select a different month!
                     </div>
                 }
             </div>
@@ -131,7 +160,7 @@
         <div class="col-12">
             <div class="overview-card">
                 <h3 style="margin-bottom: 20px;">
-                    <i class="fas fa-list"></i> All Income Entries
+                    <i class="fas fa-list"></i> Income Entries - @currentMonthName
                 </h3>
 
                 @if (Model != null && Model.Any())
@@ -160,8 +189,8 @@
                                             <strong style="color: #27ae60;">@ViewBag.CurrencySymbol @income.Amount.ToString("N2")</strong>
                                         </td>
                                         <td class="text-center">
-                                            <a asp-action="DeleteIncome" asp-route-id="@income.TransactionId" 
-                                               class="btn btn-sm btn-danger" 
+                                            <a asp-action="DeleteIncome" asp-route-id="@income.TransactionId"
+                                               class="btn btn-sm btn-danger"
                                                onclick="return confirm('Are you sure you want to delete this income?');">
                                                 <i class="fas fa-trash"></i>
                                             </a>
@@ -175,7 +204,7 @@
                 else
                 {
                     <div class="alert alert-info">
-                        <i class="fas fa-info-circle"></i> No income entries yet. Add your first income using the form above!
+                        <i class="fas fa-info-circle"></i> No income entries for @currentMonthName. Add your first income using the form above or select a different month!
                     </div>
                 }
             </div>

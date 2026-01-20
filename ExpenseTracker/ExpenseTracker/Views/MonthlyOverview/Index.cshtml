@@ -3,29 +3,37 @@
 }
 
 <div class="container-fluid">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1 class="page-title">
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+        <h1 class="page-title mb-0">
             <i class="fas fa-calendar-alt"></i> Monthly Overview
         </h1>
 
-        <!-- Month/Year Selector -->
-        <form method="get" class="d-flex gap-2">
-            <select name="month" class="form-select" style="width: auto;" onchange="this.form.submit()">
-                @if (ViewBag.MonthYearOptions != null)
-                {
-                    @foreach (dynamic item in ViewBag.MonthYearOptions)
+        <div class="d-flex gap-2">
+            <!-- Month/Year Selector -->
+            <form method="get" class="d-flex gap-2" id="monthForm">
+                <select name="month" class="form-select" style="width: auto;" id="monthSelect">
+                    @if (ViewBag.MonthYearOptions != null)
                     {
-                        var isSelected = item.Month == ViewBag.SelectedMonth && item.Year == ViewBag.SelectedYear;
-                        <option value="@item.Month"
-                                data-year="@item.Year"
-                                selected="@isSelected">
-                            @item.Display
-                        </option>
+                        @foreach (dynamic item in ViewBag.MonthYearOptions)
+                        {
+                            <option value="@item.Month"
+                                    data-year="@item.Year">
+                                @item.Display
+                            </option>
+                        }
                     }
-                }
-            </select>
-            <input type="hidden" name="year" id="yearInput" value="@ViewBag.SelectedYear" />
-        </form>
+                </select>
+                <input type="hidden" name="year" id="yearInput" value="@ViewBag.SelectedYear" />
+            </form>
+
+            <!-- Download Button -->
+            <a asp-action="ExportToExcel"
+               asp-route-month="@ViewBag.SelectedMonth"
+               asp-route-year="@ViewBag.SelectedYear"
+               class="btn btn-success">
+                <i class="fas fa-download"></i> Download Excel
+            </a>
+        </div>
     </div>
 
     <h3 class="text-center mb-4" style="color: #2c3e50;">
@@ -215,11 +223,30 @@
 
 @section Scripts {
     <script>
-        // Update hidden year input when month changes
-        document.querySelector('select[name="month"]').addEventListener('change', function() {
-            var selectedOption = this.options[this.selectedIndex];
-            var year = selectedOption.getAttribute('data-year');
-            document.getElementById('yearInput').value = year;
+        document.addEventListener('DOMContentLoaded', function() {
+            var monthSelect = document.getElementById('monthSelect');
+            var yearInput = document.getElementById('yearInput');
+            var form = document.getElementById('monthForm');
+
+            // Set the selected option on page load
+            var selectedMonth = @ViewBag.SelectedMonth;
+            var selectedYear = @ViewBag.SelectedYear;
+
+            for (var i = 0; i < monthSelect.options.length; i++) {
+                var option = monthSelect.options[i];
+                if (parseInt(option.value) === selectedMonth && parseInt(option.getAttribute('data-year')) === selectedYear) {
+                    monthSelect.selectedIndex = i;
+                    break;
+                }
+            }
+
+            // Handle month change
+            monthSelect.addEventListener('change', function() {
+                var selectedOption = this.options[this.selectedIndex];
+                var year = selectedOption.getAttribute('data-year');
+                yearInput.value = year;
+                form.submit();
+            });
         });
     </script>
 }

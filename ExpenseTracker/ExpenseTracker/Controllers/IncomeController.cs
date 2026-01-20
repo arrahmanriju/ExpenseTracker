@@ -15,10 +15,17 @@ namespace ExpenseTracker.Controllers
         }
 
         // GET: Income Page
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int? month, int? year)
         {
+            // Default to current month and year if not provided
+            int selectedMonth = month ?? DateTime.Now.Month;
+            int selectedYear = year ?? DateTime.Now.Year;
+
+            // Filter incomes for the selected month and year
             var incomes = await _context.Transactions
-                .Where(t => t.Type == "Income")
+                .Where(t => t.Type == "Income"
+                    && t.Date.Month == selectedMonth
+                    && t.Date.Year == selectedYear)
                 .OrderByDescending(t => t.Date)
                 .ToListAsync();
 
@@ -36,6 +43,8 @@ namespace ExpenseTracker.Controllers
 
             ViewBag.IncomeByCategory = incomeByCategory;
             ViewBag.TotalIncome = incomes.Sum(t => t.Amount);
+            ViewBag.SelectedMonth = selectedMonth;
+            ViewBag.SelectedYear = selectedYear;
 
             return View(incomes);
         }
@@ -49,19 +58,24 @@ namespace ExpenseTracker.Controllers
             {
                 transaction.Type = "Income";
                 transaction.CreatedAt = DateTime.Now;
-                
+
                 _context.Add(transaction);
                 await _context.SaveChangesAsync();
-
                 TempData["SuccessMessage"] = "Income added successfully!";
-                return RedirectToAction("Index", "Home"); // Redirect to Overview
+                return RedirectToAction("Index", "Home");
             }
-            
-            // If validation fails, return to the same page
+
+            // If validation fails, return to the same page with current month data
+            int currentMonth = DateTime.Now.Month;
+            int currentYear = DateTime.Now.Year;
+
             var incomes = await _context.Transactions
-                .Where(t => t.Type == "Income")
+                .Where(t => t.Type == "Income"
+                    && t.Date.Month == currentMonth
+                    && t.Date.Year == currentYear)
                 .OrderByDescending(t => t.Date)
                 .ToListAsync();
+
             return View("Index", incomes);
         }
 
