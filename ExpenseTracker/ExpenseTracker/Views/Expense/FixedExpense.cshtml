@@ -17,6 +17,35 @@
         </div>
     }
 
+    <!-- Month Selector -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="overview-card">
+                <div class="d-flex justify-content-between align-items-center">
+                    @{
+                        int prevMonth = ViewBag.SelectedMonth == 1 ? 12 : ViewBag.SelectedMonth - 1;
+                        int prevYear = ViewBag.SelectedMonth == 1 ? ViewBag.SelectedYear - 1 : ViewBag.SelectedYear;
+                        int nextMonth = ViewBag.SelectedMonth == 12 ? 1 : ViewBag.SelectedMonth + 1;
+                        int nextYear = ViewBag.SelectedMonth == 12 ? ViewBag.SelectedYear + 1 : ViewBag.SelectedYear;
+                        var currentMonthName = new DateTime(ViewBag.SelectedYear, ViewBag.SelectedMonth, 1).ToString("MMMM yyyy");
+                    }
+
+                    <a href="?month=@prevMonth&year=@prevYear" class="btn btn-outline-primary">
+                        <i class="fas fa-chevron-left"></i> Previous
+                    </a>
+
+                    <h4 class="mb-0">
+                        <i class="fas fa-calendar-alt"></i> @currentMonthName
+                    </h4>
+
+                    <a href="?month=@nextMonth&year=@nextYear" class="btn btn-outline-primary">
+                        Next <i class="fas fa-chevron-right"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="row mb-3">
         <div class="col-12">
             <a asp-controller="Expense" asp-action="AddExpense" class="btn btn-primary">
@@ -25,28 +54,65 @@
         </div>
     </div>
 
+    <!-- Expense by Category (if you want to show breakdown) -->
+    @if (ViewBag.ExpenseByCategory != null && ViewBag.ExpenseByCategory.Count > 0)
+    {
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="overview-card">
+                    <h3 style="margin-bottom: 20px;">
+                        <i class="fas fa-chart-pie"></i> Fixed Expenses by Category - @currentMonthName
+                    </h3>
+
+                    <div class="alert alert-danger mb-3">
+                        <strong>Total Fixed Expenses for @currentMonthName:</strong> @ViewBag.CurrencySymbol @ViewBag.TotalFixedExpense.ToString("N2")
+                    </div>
+
+                    <div class="row">
+                        @foreach (var item in ViewBag.ExpenseByCategory)
+                        {
+                            var percentage = ViewBag.TotalFixedExpense > 0 ? (item.Total / ViewBag.TotalFixedExpense * 100) : 0;
+                            <div class="col-md-4 mb-3">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <h5 class="card-title">@item.Category</h5>
+                                        <p class="card-text">
+                                            <strong style="color: #e74c3c; font-size: 1.3rem;">@ViewBag.CurrencySymbol @item.Total.ToString("N2")</strong><br />
+                                            <small class="text-muted">@item.Count transaction(s) · @percentage.ToString("F1")%</small>
+                                        </p>
+                                        <div class="progress" style="height: 8px;">
+                                            <div class="progress-bar bg-danger" role="progressbar" style="width: @percentage%" aria-valuenow="@percentage" aria-valuemin="0" aria-valuemax="100"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
     <div class="row">
         <div class="col-12">
             <div class="overview-card">
                 <h3 style="margin-bottom: 20px;">
-                    <i class="fas fa-list"></i> All Fixed/Recurring Expenses
+                    <i class="fas fa-list"></i> Fixed/Recurring Expenses - @currentMonthName
                 </h3>
 
                 @if (Model != null && Model.Any())
                 {
-                    var totalFixed = Model.Sum(t => t.Amount);
-                    
                     <div class="alert alert-info mb-4">
-                        <strong>Total Monthly Fixed Expenses:</strong> @ViewBag.CurrencySymbol @totalFixed.ToString("N2")
+                        <strong>Total Fixed Expenses for @currentMonthName:</strong> @ViewBag.CurrencySymbol @ViewBag.TotalFixedExpense.ToString("N2")
                     </div>
 
                     <div class="table-responsive">
                         <table class="table table-hover">
                             <thead>
                                 <tr>
+                                    <th>Date</th>
                                     <th>Category</th>
                                     <th>Description</th>
-                                    <th>Start Date</th>
                                     <th class="text-end">Amount</th>
                                     <th class="text-center">Actions</th>
                                 </tr>
@@ -55,19 +121,19 @@
                                 @foreach (var expense in Model)
                                 {
                                     <tr>
+                                        <td>@expense.Date.ToString("MMM dd, yyyy")</td>
                                         <td>
                                             <span class="badge bg-secondary">@expense.Category</span>
                                         </td>
                                         <td>@(expense.Description ?? "-")</td>
-                                        <td>@expense.Date.ToString("MMM dd, yyyy")</td>
                                         <td class="text-end">
                                             <strong style="color: #e74c3c;">@ViewBag.CurrencySymbol @expense.Amount.ToString("N2")</strong>
                                         </td>
                                         <td class="text-center">
-                                            <a asp-action="DeleteFixedExpense" asp-route-id="@expense.TransactionId" 
-                                               class="btn btn-sm btn-danger" 
+                                            <a asp-action="DeleteFixedExpense" asp-route-id="@expense.TransactionId"
+                                               class="btn btn-sm btn-danger"
                                                onclick="return confirm('Are you sure you want to delete this fixed expense?');">
-                                                <i class="fas fa-trash"></i> Delete
+                                                <i class="fas fa-trash"></i>
                                             </a>
                                         </td>
                                     </tr>
@@ -79,7 +145,7 @@
                 else
                 {
                     <div class="alert alert-info">
-                        <i class="fas fa-info-circle"></i> No fixed expenses yet. Add your recurring monthly expenses like rent, subscriptions, etc.
+                        <i class="fas fa-info-circle"></i> No fixed expenses for @currentMonthName. Add your recurring monthly expenses like rent, subscriptions, etc., or select a different month!
                     </div>
                     <a asp-controller="Expense" asp-action="AddExpense" class="btn btn-primary">
                         <i class="fas fa-plus"></i> Add Your First Fixed Expense

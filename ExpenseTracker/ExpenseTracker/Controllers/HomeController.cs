@@ -14,12 +14,18 @@ namespace ExpenseTracker.Controllers
             _context = context;
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int? month, int? year)
         {
-            // Get all transactions
-            var transactions = await _context.Transactions.ToListAsync();
+            // Default to current month and year if not provided
+            int selectedMonth = month ?? DateTime.Now.Month;
+            int selectedYear = year ?? DateTime.Now.Year;
 
-            // Calculate totals
+            // Get all transactions for the selected month
+            var transactions = await _context.Transactions
+                .Where(t => t.Date.Month == selectedMonth && t.Date.Year == selectedYear)
+                .ToListAsync();
+
+            // Calculate totals for the selected month
             var totalIncome = transactions
                 .Where(t => t.Type == "Income")
                 .Sum(t => t.Amount);
@@ -30,12 +36,13 @@ namespace ExpenseTracker.Controllers
 
             var balance = totalIncome - totalExpense;
 
-            // Get recent transactions (last 5)
+            // Get recent transactions from the selected month (last 10)
             var recentTransactions = transactions
                 .OrderByDescending(t => t.Date)
+                .Take(10)
                 .ToList();
 
-            // Expense by Category for Pie Chart
+            // Expense by Category for Pie Chart (selected month only)
             var expenseByCategory = transactions
                 .Where(t => t.Type == "Expense")
                 .GroupBy(t => t.Category)
@@ -47,16 +54,34 @@ namespace ExpenseTracker.Controllers
                 .OrderByDescending(x => x.Amount)
                 .ToList();
 
-            // Monthly trend data (last 6 months)
+            // Income by Category (selected month only)
+            var incomeByCategory = transactions
+                .Where(t => t.Type == "Income")
+                .GroupBy(t => t.Category)
+                .Select(g => new
+                {
+                    Category = g.Key,
+                    Amount = g.Sum(t => t.Amount)
+                })
+                .OrderByDescending(x => x.Amount)
+                .ToList();
+
+            // Monthly trend data (last 6 months for comparison)
             var monthlyData = new List<object>();
             for (int i = 5; i >= 0; i--)
             {
-                var targetDate = DateTime.Now.AddMonths(-i);
-                var monthIncome = transactions
-                    .Where(t => t.Type == "Income" && t.Date.Month == targetDate.Month && t.Date.Year == targetDate.Year)
+                var targetDate = new DateTime(selectedYear, selectedMonth, 1).AddMonths(-i);
+
+                var allTransactionsForMonth = await _context.Transactions
+                    .Where(t => t.Date.Month == targetDate.Month && t.Date.Year == targetDate.Year)
+                    .ToListAsync();
+
+                var monthIncome = allTransactionsForMonth
+                    .Where(t => t.Type == "Income")
                     .Sum(t => t.Amount);
-                var monthExpense = transactions
-                    .Where(t => t.Type == "Expense" && t.Date.Month == targetDate.Month && t.Date.Year == targetDate.Year)
+
+                var monthExpense = allTransactionsForMonth
+                    .Where(t => t.Type == "Expense")
                     .Sum(t => t.Amount);
 
                 monthlyData.Add(new
@@ -73,10 +98,12 @@ namespace ExpenseTracker.Controllers
             ViewBag.Balance = balance;
             ViewBag.RecentTransactions = recentTransactions;
             ViewBag.ExpenseByCategory = expenseByCategory;
+            ViewBag.IncomeByCategory = incomeByCategory;
             ViewBag.MonthlyData = monthlyData;
+            ViewBag.SelectedMonth = selectedMonth;
+            ViewBag.SelectedYear = selectedYear;
 
             return View();
         }
     }
 }
-

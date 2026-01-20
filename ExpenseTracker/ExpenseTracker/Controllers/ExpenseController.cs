@@ -9,7 +9,7 @@ namespace ExpenseTracker.Controllers
     {
         private readonly ApplicationDbContext _context;
 
-        public ExpenseController(ApplicationDbContext context) :base(context)
+        public ExpenseController(ApplicationDbContext context) : base(context)
         {
             _context = context;
         }
@@ -29,23 +29,50 @@ namespace ExpenseTracker.Controllers
             {
                 transaction.Type = "Expense";
                 transaction.CreatedAt = DateTime.Now;
-                
+
                 _context.Add(transaction);
                 await _context.SaveChangesAsync();
-
                 TempData["SuccessMessage"] = "Expense added successfully!";
-                return RedirectToAction("Index", "Home"); // Redirect to Overview
+                return RedirectToAction("Index", "Home");
             }
             return View(transaction);
         }
 
         // GET: Fixed Expense Page
-        public async Task<IActionResult> FixedExpense()
+        public async Task<IActionResult> FixedExpense(int? month, int? year)
         {
+            // Default to current month and year if not provided
+            int selectedMonth = month ?? DateTime.Now.Month;
+            int selectedYear = year ?? DateTime.Now.Year;
+
+            // Filter fixed expenses for the selected month and year
             var fixedExpenses = await _context.Transactions
-                .Where(t => t.Type == "Expense" && t.IsFixed == true)
+                .Where(t => t.Type == "Expense"
+                    && t.IsFixed == true
+                    && t.Date.Month == selectedMonth
+                    && t.Date.Year == selectedYear)
                 .OrderByDescending(t => t.Date)
                 .ToListAsync();
+
+            // Calculate total for the month
+            var totalFixed = fixedExpenses.Sum(t => t.Amount);
+
+            // Group by category
+            var expenseByCategory = fixedExpenses
+                .GroupBy(t => t.Category)
+                .Select(g => new
+                {
+                    Category = g.Key,
+                    Total = g.Sum(t => t.Amount),
+                    Count = g.Count()
+                })
+                .OrderByDescending(x => x.Total)
+                .ToList();
+
+            ViewBag.ExpenseByCategory = expenseByCategory;
+            ViewBag.TotalFixedExpense = totalFixed;
+            ViewBag.SelectedMonth = selectedMonth;
+            ViewBag.SelectedYear = selectedYear;
 
             return View(fixedExpenses);
         }
